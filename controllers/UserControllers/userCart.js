@@ -42,8 +42,19 @@ class userCart{
             })
             if(cart){
                 //check if cart quantity exceeds product quantity for each product in cart
-                cart.products.forEach((product)=>{
-                    console.log("here")
+                cart.products.forEach(async (product)=>{
+                    const originalProduct = await Products.findOne({_id: product.productID}).select('sizesArray')
+
+                    product.sizesArray.forEach((diffSize)=>{
+                        const matchedSize = originalProduct.sizesArray.find(sizeArrayItem => diffSize.size == sizeArrayItem.size)
+                        if(matchedSize){
+                            if(matchedSize.quantity < diffSize.quantity){
+                                console.log("here")
+                                diffSize.quantity = matchedSize.quantity
+                            }
+                        }
+                    })
+
                 }, cart.save())
                 res.status(200).json({
                     cart
@@ -136,6 +147,23 @@ class userCart{
             }
             else{
                 res.status(404).send("cart empty")
+            }
+        }
+        catch(err){
+            res.status(400).send(err.message)
+        }
+    }
+
+    static async emptyCart(req, res){
+        try{
+            let cart = await Cart.find({UserID: req.user.id})
+            cart = cart[0]
+            if(cart){
+                await Cart.findByIdAndDelete(cart.id)
+                res.send("cart empty")
+            }
+            else{
+                res.send("cart is already empty")
             }
         }
         catch(err){

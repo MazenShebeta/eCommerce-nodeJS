@@ -49,6 +49,10 @@ Router.delete('/removeFromCart/:id', auth, function(req, res){
     cart.removeFromCart(req, res)
 })
 
+Router.delete('/emptyCart', auth, function(req,res){
+    cart.emptyCart(req,res)
+})
+
 
 Router.post('/order', auth, function(req, res){
     order.placeOrder(req, res)
